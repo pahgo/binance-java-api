@@ -18,7 +18,7 @@ public class OrderRequest {
 
   public OrderRequest(String symbol) {
     this.symbol = symbol;
-    this.timestamp = System.currentTimeMillis();
+    this.timestamp = System.currentTimeMillis() - 60000;
     this.recvWindow = BinanceApiConstants.DEFAULT_RECEIVING_WINDOW;
   }
 

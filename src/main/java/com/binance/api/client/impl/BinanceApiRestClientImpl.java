@@ -130,14 +130,14 @@ public class BinanceApiRestClientImpl implements BinanceApiRestClient {
   public NewOrderResponse newOrder(NewOrder order) {
     return executeSync(binanceApiService.newOrder(order.getSymbol(), order.getSide(), order.getType(),
         order.getTimeInForce(), order.getQuantity(), order.getPrice(), order.getNewClientOrderId(), order.getStopPrice(),
-        order.getIcebergQty(), order.getNewOrderRespType(), order.getRecvWindow(), order.getTimestamp()));
+        order.getIcebergQty(), order.getNewOrderRespType(), order.getRecvWindow(), order.getTimestamp() + lag));
   }
 
   @Override
   public void newOrderTest(NewOrder order) {
     executeSync(binanceApiService.newOrderTest(order.getSymbol(), order.getSide(), order.getType(),
         order.getTimeInForce(), order.getQuantity(), order.getPrice(), order.getNewClientOrderId(), order.getStopPrice(),
-        order.getIcebergQty(), order.getNewOrderRespType(), order.getRecvWindow(), order.getTimestamp()));
+        order.getIcebergQty(), order.getNewOrderRespType(), order.getRecvWindow(), order.getTimestamp() + lag));
   }
 
   // Account endpoints
@@ -175,7 +175,7 @@ public class BinanceApiRestClientImpl implements BinanceApiRestClient {
 
   @Override
   public Account getAccount() {
-    return getAccount(BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis());
+    return getAccount(BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag);
   }
 
   @Override
@@ -185,32 +185,32 @@ public class BinanceApiRestClientImpl implements BinanceApiRestClient {
 
   @Override
   public List<Trade> getMyTrades(String symbol, Integer limit) {
-    return getMyTrades(symbol, limit, null, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis());
+    return getMyTrades(symbol, limit, null, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag);
   }
 
   @Override
   public List<Trade> getMyTrades(String symbol) {
-    return getMyTrades(symbol, null, null, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis());
+    return getMyTrades(symbol, null, null, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag);
   }
 
   @Override
   public WithdrawResult withdraw(String asset, String address, String amount, String name, String addressTag) {
-    return executeSync(binanceApiService.withdraw(asset, address, amount, name, addressTag, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis()));
+    return executeSync(binanceApiService.withdraw(asset, address, amount, name, addressTag, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag));
   }
 
   @Override
   public DepositHistory getDepositHistory(String asset) {
-    return executeSync(binanceApiService.getDepositHistory(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis()));
+    return executeSync(binanceApiService.getDepositHistory(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag));
   }
 
   @Override
   public WithdrawHistory getWithdrawHistory(String asset) {
-    return executeSync(binanceApiService.getWithdrawHistory(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis()));
+    return executeSync(binanceApiService.getWithdrawHistory(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag));
   }
 
   @Override
   public DepositAddress getDepositAddress(String asset) {
-    return executeSync(binanceApiService.getDepositAddress(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis()));
+    return executeSync(binanceApiService.getDepositAddress(asset, BinanceApiConstants.DEFAULT_RECEIVING_WINDOW, System.currentTimeMillis() + lag));
   }
 
   // User stream endpoints
@@ -228,5 +228,11 @@ public class BinanceApiRestClientImpl implements BinanceApiRestClient {
   @Override
   public void closeUserDataStream(String listenKey) {
     executeSync(binanceApiService.closeAliveUserDataStream(listenKey));
+  }
+
+  private Long lag = 0L;
+  @Override
+  public void setLag() {
+	lag = getServerTime() - System.currentTimeMillis();
   }
 }

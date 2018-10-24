@@ -30,6 +30,8 @@ import java.util.List;
  * Binance API façade, supporting synchronous/blocking access Binance's REST API.
  */
 public interface BinanceApiRestClient {
+	
+	void setLag();
 
   // General endpoints
 
