@@ -8,6 +8,7 @@ import com.binance.api.client.domain.account.NewOrderResponseType;
 import com.binance.api.client.domain.account.Order;
 import com.binance.api.client.domain.account.request.AllOrdersRequest;
 import com.binance.api.client.domain.account.request.CancelOrderRequest;
+import com.binance.api.client.domain.account.request.CancelOrderResponse;
 import com.binance.api.client.domain.account.request.OrderRequest;
 import com.binance.api.client.domain.account.request.OrderStatusRequest;
 import com.binance.api.client.exception.BinanceApiException;
@@ -23,7 +24,7 @@ import static com.binance.api.client.domain.account.NewOrder.marketBuy;
 public class OrdersExample {
 
   public static void main(String[] args) {
-    BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance("", "");
+    BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance("YOUR_API_KEY", "YOUR_SECRET");
     BinanceApiRestClient client = factory.newRestClient();
 
     // Getting list of open orders
@@ -31,11 +32,29 @@ public class OrdersExample {
     System.out.println(openOrders);
 
     // Getting list of all orders with a limit of 10
-    List<Order> allOrders = client.getAllOrders(new AllOrdersRequest("TRXBTC").limit(10));
+    List<Order> allOrders = client.getAllOrders(new AllOrdersRequest("LINKETH").limit(10));
     System.out.println(allOrders);
 
+    // Get status of a particular order
+    Order order = client.getOrderStatus(new OrderStatusRequest("LINKETH", 751698L));
+    System.out.println(order);
+
+    // Canceling an order
+    try {
+      CancelOrderResponse cancelOrderResponse = client.cancelOrder(new CancelOrderRequest("LINKETH", 756762l));
+      System.out.println(cancelOrderResponse);
+    } catch (BinanceApiException e) {
+      System.out.println(e.getError().getMsg());
+    }
+
+    // Placing a test LIMIT order
+    client.newOrderTest(limitBuy("LINKETH", TimeInForce.GTC, "1000", "0.0001"));
+
+    // Placing a test MARKET order
+    client.newOrderTest(marketBuy("LINKETH", "1000"));
+
     // Placing a real LIMIT order
-    NewOrderResponse newOrderResponse = client.newOrder(limitBuy("TRXBTC", TimeInForce.FOK, "1000", "0.00000100").newOrderRespType(NewOrderResponseType.FULL));
+    NewOrderResponse newOrderResponse = client.newOrder(limitBuy("LINKETH", TimeInForce.GTC, "1000", "0.0001").newOrderRespType(NewOrderResponseType.FULL));
     System.out.println(newOrderResponse);
   }
 
